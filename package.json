@@ -1,0 +1,1 @@
+{"name":"project-snap","version":"1.0.0","description":"AI agent project context generator","bin":{"project-snap":"./cli.js"},"files":["cli.js","lib/"],"license":"MIT"}
