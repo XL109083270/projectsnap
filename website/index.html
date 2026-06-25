@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapKit — Developer CLI Toolkit</title>
+    <meta name="description" content="5 essential CLI tools for developers who use AI agents: project scan, git changelog, env security, API discovery, dependency analysis.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; }
+        .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+        nav { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
+        nav .logo { font-weight: 700; font-size: 1.25rem; color: #fff; }
+        nav .logo span { color: #6366f1; }
+        nav a { color: #a1a1aa; text-decoration: none; font-size: 0.875rem; }
+        nav a:hover { color: #fff; }
+
+        header { padding: 80px 0 48px; text-align: center; }
+        header .badge { display: inline-block; background: rgba(99,102,241,0.15); color: #818cf8; font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; margin-bottom: 16px; letter-spacing: 0.5px; }
+        header h1 { font-size: 2.75rem; font-weight: 700; line-height: 1.2; color: #fff; letter-spacing: -0.5px; }
+        header h1 span { color: #6366f1; }
+        header p { font-size: 1.125rem; color: #a1a1aa; margin-top: 16px; max-width: 640px; margin-left: auto; margin-right: auto; }
+        .code-block { background: #14141f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px 20px; margin: 32px auto; max-width: 560px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8125rem; color: #a5b4fc; text-align: left; }
+        .code-block .prompt { color: #22d3ee; }
+        .code-block .comment { color: #6b7280; }
+        .code-block .dim { color: #52525b; }
+        .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+        .btn-primary { background: #6366f1; color: #fff; border: none; padding: 12px 28px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
+        .btn-primary:hover { background: #4f46e5; }
+        .btn-secondary { background: transparent; color: #e4e4e7; border: 1px solid #27272a; padding: 12px 28px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; transition: border-color 0.2s; }
+        .btn-secondary:hover { border-color: #52525b; }
+
+        section { padding: 64px 0; }
+        section h2 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 32px; }
+        section h2.center { text-align: center; }
+
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .tool-card { background: #14141f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 24px; transition: border-color 0.2s; }
+        .tool-card:hover { border-color: #6366f1; }
+        .tool-card .icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .tool-card h3 { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .tool-card .cmd { font-size: 0.75rem; color: #818cf8; font-family: 'SF Mono', monospace; margin-bottom: 8px; }
+        .tool-card p { font-size: 0.8125rem; color: #a1a1aa; }
+        .tool-card .tag { display: inline-block; margin-top: 8px; font-size: 0.6875rem; background: rgba(99,102,241,0.12); color: #818cf8; padding: 2px 8px; border-radius: 100px; }
+
+        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 680px; margin: 0 auto; }
+        @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
+        .pricing-card { background: #14141f; border: 1px solid #1e1e2e; border-radius: 16px; padding: 32px; text-align: center; }
+        .pricing-card.featured { border-color: #6366f1; position: relative; }
+        .pricing-card.featured::before { content: 'Best Value'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #6366f1; color: #fff; font-size: 0.6875rem; font-weight: 600; padding: 2px 12px; border-radius: 100px; }
+        .pricing-card .price { font-size: 2.5rem; font-weight: 700; color: #fff; }
+        .pricing-card .price span { font-size: 1rem; color: #a1a1aa; font-weight: 400; }
+        .pricing-card .original { font-size: 0.875rem; color: #6b7280; text-decoration: line-through; }
+        .pricing-card ul { list-style: none; margin: 20px 0; text-align: left; }
+        .pricing-card ul li { font-size: 0.8125rem; color: #a1a1aa; padding: 4px 0; }
+        .pricing-card ul li::before { content: '✓ '; color: #22d3ee; }
+        .pricing-card .btn-primary { margin-top: 16px; width: 100%; }
+        .pricing-card .note { font-size: 0.75rem; color: #6b7280; margin-top: 12px; }
+        .pricing-card .tagline { font-size: 0.875rem; color: #818cf8; margin-top: 8px; }
+
+        .faq-item { background: #14141f; border: 1px solid #1e1e2e; border-radius: 10px; padding: 20px 24px; margin-bottom: 12px; }
+        .faq-item h3 { font-size: 0.9375rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .faq-item p { font-size: 0.8125rem; color: #a1a1aa; }
+
+        footer { padding: 32px 0; text-align: center; color: #6b7280; font-size: 0.75rem; }
+        footer a { color: #818cf8; text-decoration: none; }
+
+        @media (max-width: 640px) {
+            header h1 { font-size: 2rem; }
+            header { padding: 48px 0 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <div class="logo">Snap<span>Kit</span></div>
+            <a href="mailto:support@projectsnap.dev">Contact</a>
+        </nav>
+
+        <header>
+            <div class="badge">5 essential CLI tools · One command</div>
+            <h1>Your AI agent's <span>swiss army knife</span></h1>
+            <p>Project scan · Git changelog · Env security · API discovery · Dependency analysis.<br>One install. Five tools. Instant developer superpowers.</p>
+            <div class="code-block">
+                <span class="prompt">$</span> snap project <span class="dim"># → AI-ready project context</span><br>
+                <span class="prompt">$</span> snap git <span class="dim"># → structured changelog</span><br>
+                <span class="prompt">$</span> snap env <span class="dim"># → security scan</span><br>
+                <span class="prompt">$</span> snap api <span class="dim"># → API endpoint map</span><br>
+                <span class="prompt">$</span> snap dep <span class="dim"># → dependency health</span>
+            </div>
+            <div class="cta-group">
+                <a href="#pricing" class="btn-primary">Get SnapKit — $19</a>
+                <a href="https://github.com/XL109083270/projectsnap" class="btn-secondary">GitHub →</a>
+            </div>
+        </header>
+
+        <section>
+            <h2 class="center">All five tools</h2>
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <div class="icon">📋</div>
+                    <h3>Project Snap</h3>
+                    <div class="cmd">snap project [dir]</div>
+                    <p>Generates a structured project context your AI agent reads instantly. Framework detection, entry points, dependency map — no more re-explaining your codebase.</p>
+                    <span class="tag">Token-aware · ~3KB output</span>
+                </div>
+                <div class="tool-card">
+                    <div class="icon">📜</div>
+                    <h3>Git Snap</h3>
+                    <div class="cmd">snap git [options]</div>
+                    <p>Structured changelog from git history. Groups by type (feat, fix, perf, refactor…), detects breaking changes, filters by date/author/tag. Markdown or JSON.</p>
+                    <span class="tag">Conventional commits · Release notes</span>
+                </div>
+                <div class="tool-card">
+                    <div class="icon">🔐</div>
+                    <h3>Env Guard</h3>
+                    <div class="cmd">snap env [dir]</div>
+                    <p>Scans for hardcoded secrets, missing .env variables, .gitignore compliance, and dangerous files. Catches leaks before you commit.</p>
+                    <span class="tag">30+ patterns · Severity levels</span>
+                </div>
+                <div class="tool-card">
+                    <div class="icon">🔍</div>
+                    <h3>API Snap</h3>
+                    <div class="cmd">snap api [dir]</div>
+                    <p>Discovers all API endpoints in your project. Supports Express, Fastify, Hono, Next.js App Router, NestJS, and more. Never lose track of your routes.</p>
+                    <span class="tag">10+ frameworks · Table/JSON output</span>
+                </div>
+                <div class="tool-card">
+                    <div class="icon">📦</div>
+                    <h3>Dep Snap</h3>
+                    <div class="cmd">snap dep [dir]</div>
+                    <p>Analyses dependencies across package.json, requirements.txt, Cargo.toml, go.mod. Detects outdated, redundant, unused, and missing peer deps.</p>
+                    <span class="tag">Multi-language · Offline mode</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing">
+            <h2 class="center">Pricing</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="price">$9 <span>each</span></div>
+                    <p class="tagline">Individual tool</p>
+                    <ul>
+                        <li>One tool of your choice</li>
+                        <li>Lifetime updates</li>
+                        <li>14-day refund</li>
+                    </ul>
+                    <a href="mailto:support@projectsnap.dev?subject=Buy%20Individual%20SnapKit%20Tool" class="btn-primary">Buy One — $9</a>
+                    <div class="note">Specify tool name in email</div>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="price">$19 <span>one-time</span></div>
+                    <div class="original">$45 value</div>
+                    <p class="tagline">All 5 tools</p>
+                    <ul>
+                        <li>Project Snap + Git Snap + Env Guard</li>
+                        <li>API Snap + Dep Snap</li>
+                        <li>Lifetime updates</li>
+                        <li>14-day refund</li>
+                    </ul>
+                    <a href="mailto:support@projectsnap.dev?subject=Buy%20SnapKit%20Bundle" class="btn-primary">Get SnapKit — $19</a>
+                    <div class="note">Payment via Paddle · Key by email</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="center">FAQ</h2>
+            <div class="faq-item">
+                <h3>How do I install?</h3>
+                <p>One command: <code>curl -fsSL https://projectsnap-109083270.surge.sh/install.sh | sh</code>. Works on macOS and Linux. No npm or GitHub required.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Which AI agents does it work with?</h3>
+                <p>Any of them. Claude Code, Cursor, Codex, OpenCode, GitHub Copilot — the output is plain text your agent reads instantly.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Can I buy individual tools?</h3>
+                <p>Yes, $9 per tool. Email us the tool name and we'll send you a license key. The bundle ($19) gives you all 5 for the price of 2.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What about refunds?</h3>
+                <p>14-day money-back guarantee. If it doesn't save you time, we'll refund it.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>SnapKit — Built for developers who use AI agents daily.</p>
+            <p style="margin-top:4px;"><a href="mailto:support@projectsnap.dev">support@projectsnap.dev</a></p>
+            <p style="margin-top:8px;">
+                <a href="/terms.html" style="color:#6b7280;font-size:0.75rem;">Terms</a>
+                <span style="color:#3f3f46;font-size:0.75rem;"> · </span>
+                <a href="/privacy.html" style="color:#6b7280;font-size:0.75rem;">Privacy</a>
+                <span style="color:#3f3f46;font-size:0.75rem;"> · </span>
+                <a href="/refund.html" style="color:#6b7280;font-size:0.75rem;">Refunds</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
